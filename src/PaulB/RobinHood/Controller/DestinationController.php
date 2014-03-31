@@ -20,6 +20,20 @@ class DestinationController extends Controller
         return $this->commonOffersAction($destination, $this->container['destinations']->getChildren(), $page);
     }
     
+    public function popularOffersAction()
+    {
+        $destination = $this->container['destinations']->getChild($this->container['request']->get('destination_id'));
+
+        return $this->container['twig']->render(
+            '_popularOffers.twig', array(
+                'destination' => $destination,
+                'offers' => $this->container['client']->getRooms(array_merge(array(
+                    'per_page' => 8,
+                ), $destination['api_params'])),
+            )
+        );
+    }
+    
     private function commonOffersAction($destination, $destinations, $page, $template)
     {
         return $this->container['twig']->render(
