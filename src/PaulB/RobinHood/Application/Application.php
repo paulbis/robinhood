@@ -8,6 +8,7 @@ use Igorw\Silex\ConfigServiceProvider;
 use SilexMongo\MongoDbExtension;
 use Silex\Provider\TwigServiceProvider;
 use PaulB\RobinHood\Provider\RobinHoodServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 
 class Application extends BaseApplication
@@ -23,5 +24,6 @@ class Application extends BaseApplication
             'twig.path' => $values['views_path'],
         ));
         $this->register(new UrlGeneratorServiceProvider());
+        $this->register(new ServiceControllerServiceProvider());
     }
 }
