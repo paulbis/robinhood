@@ -14,10 +14,10 @@ class DestinationController extends Controller
     
     public function destinationOffersAction()
     {
-        $root = $this->container['destinations']->getChild($this->container['request']->get('destination_id'));
+        $destination = $this->container['destinations']->getChild($this->container['request']->get('destination_id'));
         $page = $this->container['request']->get('page', 1);
         
-        return $this->commonOffersAction($root, $this->container['destinations']->getChildren(), $page, 'root.twig');
+        return $this->commonOffersAction($destination, $this->container['destinations']->getChildren(), $page, 'root.twig');
     }
     
     private function commonOffersAction($destination, $destinations, $page, $template)
