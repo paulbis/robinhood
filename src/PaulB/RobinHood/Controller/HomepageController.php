@@ -2,16 +2,9 @@
 
 namespace PaulB\RobinHood\Controller;
 
-class HomepageController
+class HomepageController extends Controller
 {
-    protected $container;
-    
-    public function __construct($container)
-    {
-        $this->container = $container;
-    }
-    
-    public function homepageAction()
+    public function indexAction()
     {
         $destination = $this->container['destinations']
                 ->getRoot();
