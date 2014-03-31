@@ -25,10 +25,10 @@ class Application extends BaseApplication
         $this->register(new ConfigServiceProvider($values['configuration_path']));
         $this->register(new RobinHoodServiceProvider($values['destinations_path']));
         $this->register(new MongoDbExtension(), $this['mongo']);
+        $this->register(new UrlGeneratorServiceProvider());
         $this->register(new TwigServiceProvider(), array(
             'twig.path' => $values['views_path'],
         ));
-        $this->register(new UrlGeneratorServiceProvider());
         $this->register(new ServiceControllerServiceProvider());
         
         $app = $this;
