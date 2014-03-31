@@ -9,7 +9,7 @@ class DestinationController extends Controller
         $root = $this->container['destinations']->getRoot();
         $page = $this->container['request']->get('page', 1);
         
-        return $this->commonOffersAction($root, $this->container['destinations']->getChildren(), $page, 'root.twig');
+        return $this->commonOffersAction($root, $this->container['destinations']->getChildren(), $page);
     }
     
     public function destinationOffersAction()
@@ -17,13 +17,13 @@ class DestinationController extends Controller
         $destination = $this->container['destinations']->getChild($this->container['request']->get('destination_id'));
         $page = $this->container['request']->get('page', 1);
         
-        return $this->commonOffersAction($destination, $this->container['destinations']->getChildren(), $page, 'root.twig');
+        return $this->commonOffersAction($destination, $this->container['destinations']->getChildren(), $page);
     }
     
     private function commonOffersAction($destination, $destinations, $page, $template)
     {
         return $this->container['twig']->render(
-            $template, array(
+            'destination.twig', array(
                 'destination' => $destination,
                 'destinations' => $destinations,
                 'offers' => $this->container['client']->getRooms(array_merge(array(
