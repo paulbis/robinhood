@@ -22,13 +22,13 @@ class DestinationController extends Controller
     
     public function popularOffersAction()
     {
-        $destination = $this->container['destinations']->getChild($this->container['request']->get('destination_id'));
+        $destination = $this->container['destinations']->find($this->container['request']->get('destination_id'));
 
         return $this->container['twig']->render(
             '_popularOffers.twig', array(
                 'destination' => $destination,
                 'offers' => $this->container['client']->getRooms(array_merge(array(
-                    'per_page' => 8,
+                    'per_page' => $this->container['request']->get('limit', 6),
                 ), $destination['api_params'])),
             )
         );
@@ -42,7 +42,7 @@ class DestinationController extends Controller
                 'destinations' => $destinations,
                 'offers' => $this->container['client']->getRooms(array_merge(array(
                     'page' => (int) $page,
-                    'per_page' => 20,
+                    'per_page' => $this->container['request']->get('per_page', 20),
                 ), $destination['api_params'])),
             )
         );
