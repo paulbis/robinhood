@@ -19,7 +19,7 @@ class Synchronizer
         $exists = $this->findOfferById($offer['id']);
         
         if (!$exists) {
-            $baseSlug = $slug = Inflector::urlize(sprintf('%s-%s', $offer['city'], $offer['title']));
+            $baseSlug = $slug = Inflector::urlize($offer['title']);
             $n = 1;
 
             while ($this->findOfferBySlug($slug)) {
