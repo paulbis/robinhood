@@ -13,14 +13,24 @@ class Manager
     
     public function getAll()
     {
-        $test = $this->getMongoCollection()
+        $cities = array();
+
+        $raw = $this->getMongoCollection()
                 ->group(array(
                     'city' => 1,
                 ), array(
-                    'items' => array(),
-                ), 'reduce');
+                    'count' => 0,
+                ), 'function (obj, prev) { prev.count++; }');
         
-        die(var_dump($test));
+        foreach ($raw as $city) {
+            if (!empty($city['city'])) {
+                $cities[$city['city']] = $city['count'];
+            }
+        }
+        
+        arsort($cities);
+        
+        return $cities;
     }
     
     private function getMongoCollection()

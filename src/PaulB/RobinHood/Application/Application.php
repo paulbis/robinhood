@@ -11,11 +11,6 @@ use PaulB\RobinHood\Provider\RobinHoodServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 
-use PaulB\RobinHood\Controller\HomepageController;
-use PaulB\RobinHood\Controller\DestinationController;
-use PaulB\RobinHood\Controller\CityController;
-use PaulB\RobinHood\Controller\OfferController;
-
 class Application extends BaseApplication
 {
     public function __construct(array $values = array())
@@ -30,19 +25,5 @@ class Application extends BaseApplication
             'twig.path' => $values['views_path'],
         ));
         $this->register(new ServiceControllerServiceProvider());
-        
-        $app = $this;
-        $this['homepage.controller'] = $this->share(function() use ($app) {
-            return new HomepageController($app);
-        });
-        $this['destination.controller'] = $this->share(function() use ($app) {
-            return new DestinationController($app);
-        });
-        $this['city.controller'] = $this->share(function() use ($app) {
-            return new CityController($app);
-        });
-        $this['offer.controller'] = $this->share(function() use ($app) {
-            return new OfferController($app);
-        });
     }
 }
