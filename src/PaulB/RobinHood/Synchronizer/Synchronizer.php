@@ -31,11 +31,10 @@ class Synchronizer
                 $destination = $this->container['destinations']
                         ->geocode($offer['loc']['lat'], $offer['loc']['lng']);
             } else {
-                $d = $this->container['destinations']->getRoot();
-                $destination = $d['code'];
+                $destination = $this->container['destinations']->getRoot();
             }
             
-            $this->saveOffer($offer['id'], $slug, $offer['city'], $destination);
+            $this->saveOffer($offer['id'], $slug, $offer['city'], $destination['code']);
 
             return array_merge(array('slug' => $slug, 'destination_id' => $destination), $offer);
         }
