@@ -36,7 +36,7 @@ class Synchronizer
             
             $this->saveOffer($offer['id'], $slug, $offer['city'], $destination['code']);
 
-            return array_merge(array('slug' => $slug, 'destination_id' => $destination), $offer);
+            return array_merge(array('slug' => $slug, 'destination_id' => $destination['code']), $offer);
         }
         
         return array_merge($exists, $offer);
