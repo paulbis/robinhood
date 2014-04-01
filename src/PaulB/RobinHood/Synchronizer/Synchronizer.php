@@ -14,44 +14,20 @@ class Synchronizer
         $this->container = $container;
     }
     
-    public function synchronize()
-    {
-        $root = $this->container['destinations']
-                ->getRoot();
-        
-        $params = array_merge(array(
-            'per_page' => 0,
-            'page' => 1,
-        ), $root['api_params']);
-        $base = $this->container['client']->getRooms($params);
-        
-        $params['per_page'] = self::TRESHOLD;
-        $pages = ceil($base['totalResults'] / self::TRESHOLD);
-        
-        for ($i = 1; $i <= $pages; $i++) {
-            $params['page'] = $i;
-            $offers = $this->container['client']->getRooms($params);
-            
-            foreach ($offers['results'] as $offer) {
-                $this->synchronizeOffer($offer);
-            }
-        }
-    }
-    
     public function synchronizeOffer($offer) 
     {
-        $exists = $this->findById($offer['id']);
+        $exists = $this->findOfferById($offer['id']);
         
         if (!$exists) {
             $baseSlug = $slug = Inflector::urlize(sprintf('%s-%s', $offer['city'], $offer['title']));
             $n = 1;
 
-            while ($this->findBySlug($slug)) {
+            while ($this->findOfferBySlug($slug)) {
                 $n++;
                 $slug = $baseSlug . '-' . $n;
             }
 
-            $this->save($offer['id'], $slug, $offer['city']);
+            $this->saveOffer($offer['id'], $slug, $offer['city']);
             
             return array_merge(array('slug' => $slug), $offer);
         }
@@ -59,23 +35,40 @@ class Synchronizer
         return array_merge($exists, $offer);
     }
     
-    public function findBySlug($slug)
+    public function findOfferBySlug($slug)
     {
-        return $this->getMongoCollection()
+        return $this->getOffersMongoCollection()
                 ->findOne(array(
                     'slug' => $slug,
                 ));
     }
     
-    public function findById($id)
+    public function findOfferById($id)
     {
-        return $this->getMongoCollection()
+        return $this->getOffersMongoCollection()
                 ->findOne(array(
                     '_id' => $id,
                 ));
     }
     
-    private function save($id, $slug, $city)
+    public function findOfferIdsByCity($city)
+    {
+        $offers = array();
+        $cursor = $this->getOffersMongoCollection()
+                ->find(array(
+                    'city' => $city,
+                ), array(
+                    '_id' => true,
+                ));
+        
+        foreach ($cursor as $offer) {
+            $offers[] = $offer['_id'];
+        }
+        
+        return $offers;
+    }
+    
+    private function saveOffer($id, $slug, $city)
     {
         $doc = array(
             '_id' => $id,
@@ -83,13 +76,61 @@ class Synchronizer
             'city' => $city,
         );
         
-        return $this->getMongoCollection()
+        return $this->getOffersMongoCollection()
                 ->insert($doc);
     }
     
-    private function getMongoCollection()
+    public function findCity($id)
+    {
+        return $this->getCitiesMongoCollection()
+                ->findOne(array(
+                    '_id' => $id,
+                ));
+    }
+    
+    public function synchronizeAllCities()
+    {
+        $cities = array();
+
+        $raw = $this->getOffersMongoCollection()
+                ->group(array(
+                    'city' => 1,
+                ), array(
+                    'count' => 0,
+                ), 'function (obj, prev) { prev.count++; }');
+        
+        foreach ($raw as $city) {
+            if (!empty($city['city'])) {
+                $slug = Inflector::urlize($city['city']);
+                $this->getCitiesMongoCollection()
+                        ->update(array(
+                            '_id' => $slug,
+                        ), array(
+                            '_id' => $slug,
+                            'name' => $city['city'],
+                            'count' => $city['count'],
+                        ), array(
+                            'upsert' => true,
+                        ));
+            }
+        }
+        
+        return true;
+    }
+
+    public function getOffersMongoCollection()
+    {
+        return $this->getMongoCollection('offers');
+    }
+    
+    public function getCitiesMongoCollection()
+    {
+        return $this->getMongoCollection('cities');
+    }
+    
+    private function getMongoCollection($collection)
     {
         return $this->container['mongodb']
-                ->selectCollection($this->container['mongo']['dbname'], 'offers');
+                ->selectCollection($this->container['mongo']['dbname'], $collection);
     }
 }

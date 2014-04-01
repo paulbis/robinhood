@@ -15,27 +15,34 @@ class Manager
     {
         $cities = array();
 
-        $raw = $this->getMongoCollection()
-                ->group(array(
-                    'city' => 1,
-                ), array(
-                    'count' => 0,
-                ), 'function (obj, prev) { prev.count++; }');
+        $raw = $this->container['synchronizer']
+                ->getCitiesMongoCollection()
+                ->find()
+                ->sort(array(
+                    'count' => \MongoCollection::DESCENDING,
+                ));
         
         foreach ($raw as $city) {
-            if (!empty($city['city'])) {
-                $cities[$city['city']] = $city['count'];
+            if (!empty($city['_id'])) {
+                $cities[$city['_id']] = array(
+                    'slug' => $city['_id'],
+                    'name' => $city['name'],
+                    'count' => $city['count'],
+                );
             }
         }
-        
-        arsort($cities);
         
         return $cities;
     }
     
-    private function getMongoCollection()
+    public function getOffers($city)
     {
-        return $this->container['mongodb']
-                ->selectCollection($this->container['mongo']['dbname'], 'offers');
+        $offerIds = $this->container['synchronizer']
+                ->findOfferIdsByCity($city['name']);
+        
+        $offers = $this->container['client']
+                ->getRoomsByIds($offerIds);
+        
+        return $offers;
     }
 }

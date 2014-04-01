@@ -30,10 +30,23 @@ class Client
         return $results;
     }
     
+    public function getRoomsByIds($ids)
+    {
+        $rooms = array();
+        $raw = $this->get('/rooms/find/' . implode(',', $ids));
+        
+        foreach ($raw['offers'] as $i => $offer) {
+            $rooms[$i] = $this->container['synchronizer']
+                    ->synchronizeOffer($offer);
+        }
+        
+        return $rooms;
+    }
+    
     public function getRoom($slug)
     {
         $offer = $this->container['synchronizer']
-                ->findBySlug($slug);
+                ->findOfferBySlug($slug);
         
         if (!empty($offer)) {
             return array_merge($offer, $this->get('/rooms/' . $offer['_id']));
