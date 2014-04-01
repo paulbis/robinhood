@@ -36,4 +36,20 @@ class CityController extends Controller
             )
         );
     }
+    
+    public function popularCitiesAction()
+    {
+        $cities = array_slice(
+                $this->container['cities']
+                    ->getAll(),
+                0,
+                $this->container['request']->get('limit', 12)
+            );
+
+        return $this->container['twig']->render(
+            '_popularCities.twig', array(
+                'cities' => $cities,
+            )
+        );
+    }
 }
