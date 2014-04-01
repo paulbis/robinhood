@@ -26,10 +26,18 @@ class Synchronizer
                 $n++;
                 $slug = $baseSlug . '-' . $n;
             }
-
-            $this->saveOffer($offer['id'], $slug, $offer['city']);
             
-            return array_merge(array('slug' => $slug), $offer);
+            if (!empty($offer['loc']) && !empty($offer['loc']['lat']) && !empty($offer['loc']['lng'])) {
+                $destination = $this->container['destinations']
+                        ->geocode($offer['loc']['lat'], $offer['loc']['lng']);
+            } else {
+                $d = $this->container['destinations']->getRoot();
+                $destination = $d['code'];
+            }
+            
+            $this->saveOffer($offer['id'], $slug, $offer['city'], $destination);
+
+            return array_merge(array('slug' => $slug, 'destination_id' => $destination), $offer);
         }
         
         return array_merge($exists, $offer);
@@ -68,11 +76,12 @@ class Synchronizer
         return $offers;
     }
     
-    private function saveOffer($id, $slug, $city)
+    private function saveOffer($id, $slug, $city, $destination)
     {
         $doc = array(
             '_id' => $id,
             'slug' => $slug,
+            'destination_id' => $destination,
             'city' => $city,
         );
         

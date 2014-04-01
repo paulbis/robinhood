@@ -34,7 +34,7 @@ class DestinationController extends Controller
         );
     }
     
-    private function commonOffersAction($destination, $destinations, $page, $template)
+    private function commonOffersAction($destination, $destinations, $page)
     {
         return $this->container['twig']->render(
             'destination.twig', array(
