@@ -15,6 +15,7 @@ class CityController extends Controller
         return $this->container['twig']->render(
             'cities.twig', array(
                 'destinations' => $this->container['destinations']->getChildren(),
+                'root' => $this->container['destinations']->getRoot(),
                 'cities' => $cities,
             )
         );
